@@ -4,18 +4,43 @@
 namespace Tls;
 
 
+/**
+ * Class Server
+ * @package Tls
+ */
 class Server
 {
+    /**
+     * @var
+     */
     private $addr;
 
+    /**
+     * @var
+     */
     private $options;
 
+    /**
+     * @var
+     */
     private $passphrase;
 
+    /**
+     * @var
+     */
     private $srvCtx;
 
+    /**
+     * @var
+     */
     private $server;
 
+    /**
+     * Server constructor.
+     * @param $addr
+     * @param $passphrase
+     * @param $options
+     */
     public function __construct($addr, $passphrase, $options)
     {
         $this->addr = $addr;
@@ -23,28 +48,33 @@ class Server
         $this->passphrase = $passphrase;
     }
 
+    /**
+     *
+     */
     public function connect()
     {
         $this->srvCtx = stream_context_create();
         $this->prepareContextOption();
         $url = sprintf("tlsv1.2://%s:%s", $this->options['tls']['host'], $this->options['tls']['port']);
         $this->server = stream_socket_server($url, $errorNumber,
-            $errorString, STREAM_SERVER_BIND|STREAM_SERVER_LISTEN, $this->srvCtx);
-        echo "PHP Socket Server started at " . $url . ", at ". date( 'Y-m-d H:i:s' ) ."\n";
+            $errorString, STREAM_SERVER_BIND | STREAM_SERVER_LISTEN, $this->srvCtx);
+        echo "PHP Socket Server started at " . $url . ", at " . date('Y-m-d H:i:s') . "\n";
     }
 
+    /**
+     *
+     */
     public function wait()
     {
         $this->connect();
         while (true) {
             /* Accept incoming requests and handle them as child processes */
             $client = stream_socket_accept($this->server);
-            if(!$client)
-            {
+            if (!$client) {
                 echo 'Server has some problem';
                 break;
             }
-            $ip = stream_socket_get_name( $client, true );
+            $ip = stream_socket_get_name($client, true);
 
             echo "New connection from " . $ip;
 
@@ -63,7 +93,7 @@ class Server
             $new = $input;
 
             // Display Date, IP and Msg received
-            echo date( 'Y-m-d H:i:s' ) . " | " . $ip . ": \033[0;32m" . $input . "\033[0m" . PHP_EOL;
+            echo date('Y-m-d H:i:s') . " | " . $ip . ": \033[0;32m" . $input . "\033[0m" . PHP_EOL;
 
             fclose($client);
         }
@@ -72,6 +102,9 @@ class Server
         socket_close($this->server);
     }
 
+    /**
+     *
+     */
     private function prepareContextOption()
     {
         stream_context_set_option($this->srvCtx, 'ssl', 'local_cert', $this->options['tls']['cert']);
