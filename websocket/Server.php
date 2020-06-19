@@ -13,6 +13,7 @@ class Server extends Base
      * @var array
      */
     protected static $default_options = [
+        'addr' => '0.0.0.0',
         'timeout' => null,
         'fragment_size' => 4096,
         'port' => 8000,
@@ -50,9 +51,10 @@ class Server extends Base
     {
         $this->options = array_merge(self::$default_options, $options);
         $this->port = $this->options['port'];
-
+        $this->addr = $this->options['addr'];
         do {
-            $this->listening = @stream_socket_server("tcp://0.0.0.0:$this->port", $errno, $errstr);
+            $url = "tcp://$this->addr:$this->port";
+            $this->listening = @stream_socket_server($url, $errno, $errstr);
         } while ($this->listening === false && $this->port++ < 10000);
 
         if (!$this->listening) {

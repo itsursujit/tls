@@ -10,10 +10,11 @@ require(__DIR__ . '/vendor/autoload.php');
 
 use WebSocket\Server;
 
+$options = require __DIR__ . '/config/config.php';
 // Setting timeout to 200 seconds to make time for all tests and manual runs.
-$server = new Server(array('timeout' => 200));
+$server = new Server($options['ws']);
 
-echo $server->getPort(), "\n";
+echo "Listening on port: " . $server->getPort(), "\n";
 
 while ($server->accept()) {
 

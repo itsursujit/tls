@@ -3,11 +3,13 @@
 require(__DIR__ . '/vendor/autoload.php');
 
 use WebSocket\Client;
+$options = require __DIR__ . '/config/config.php';
+$url = sprintf("ws://{$options['ws']['addr']}:{$options['ws']['port']}");
+$client = new Client($url);
 
-$client = new Client("ws://localhost:{$argv[1]}");
+$payload = 'exit';
+$client->send($payload);
 
-$client->send($argv[2]);
-
-echo $client->receive();
+echo 'Message from Server' . $client->receive();
 
 $client->close();
