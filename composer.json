@@ -1,0 +1,14 @@
+{
+    "name": "sujit/tls",
+    "authors": [
+        {
+            "name": "Sujit",
+            "email": "itsursujit@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "WebSocket\\": "websocket"
+        }
+    }
+}
