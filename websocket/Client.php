@@ -6,18 +6,18 @@ class Client extends Base
 {
     // Default options
     protected static $default_options = [
-        'timeout'       => 5,
+        'timeout' => 5,
         'fragment_size' => 4096,
-        'context'       => null,
-        'headers'       => null,
-        'origin'        => null, // @deprecated
+        'context' => null,
+        'headers' => null,
+        'origin' => null, // @deprecated
     ];
 
     protected $socket_uri;
 
     /**
-     * @param string $uri     A ws/wss-URI
-     * @param array  $options
+     * @param string $uri A ws/wss-URI
+     * @param array $options
      *   Associative array containing:
      *   - context:       Set the stream context. Default: empty context
      *   - timeout:       Set the socket timeout in seconds.  Default: 5
@@ -49,14 +49,14 @@ class Client extends Base
                 "Invalid url '$this->socket_uri' provided."
             );
         }
-        $scheme    = $url_parts['scheme'];
-        $host      = $url_parts['host'];
-        $user      = isset($url_parts['user']) ? $url_parts['user'] : '';
-        $pass      = isset($url_parts['pass']) ? $url_parts['pass'] : '';
-        $port      = isset($url_parts['port']) ? $url_parts['port'] : ($scheme === 'wss' ? 443 : 80);
-        $path      = isset($url_parts['path']) ? $url_parts['path'] : '/';
-        $query     = isset($url_parts['query'])    ? $url_parts['query'] : '';
-        $fragment  = isset($url_parts['fragment']) ? $url_parts['fragment'] : '';
+        $scheme = $url_parts['scheme'];
+        $host = $url_parts['host'];
+        $user = isset($url_parts['user']) ? $url_parts['user'] : '';
+        $pass = isset($url_parts['pass']) ? $url_parts['pass'] : '';
+        $port = isset($url_parts['port']) ? $url_parts['port'] : ($scheme === 'wss' ? 443 : 80);
+        $path = isset($url_parts['path']) ? $url_parts['path'] : '/';
+        $query = isset($url_parts['query']) ? $url_parts['query'] : '';
+        $fragment = isset($url_parts['fragment']) ? $url_parts['fragment'] : '';
 
         $path_with_query = $path;
         if (!empty($query)) {
@@ -112,11 +112,11 @@ class Client extends Base
 
         // Default headers
         $headers = array(
-            'Host'                  => $host . ":" . $port,
-            'User-Agent'            => 'websocket-client-php',
-            'Connection'            => 'Upgrade',
-            'Upgrade'               => 'websocket',
-            'Sec-WebSocket-Key'     => $key,
+            'Host' => $host . ":" . $port,
+            'User-Agent' => 'websocket-client-php',
+            'Connection' => 'Upgrade',
+            'Upgrade' => 'websocket',
+            'Sec-WebSocket-Key' => $key,
             'Sec-WebSocket-Version' => '13',
         );
 

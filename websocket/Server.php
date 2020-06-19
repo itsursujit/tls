@@ -2,19 +2,41 @@
 
 namespace WebSocket;
 
+/**
+ * Class Server
+ * @package WebSocket
+ */
 class Server extends Base
 {
     // Default options
+    /**
+     * @var array
+     */
     protected static $default_options = [
-        'timeout'       => null,
+        'timeout' => null,
         'fragment_size' => 4096,
-        'port'          => 8000,
+        'port' => 8000,
     ];
 
+    /**
+     * @var
+     */
     protected $addr;
+    /**
+     * @var mixed
+     */
     protected $port;
+    /**
+     * @var false|resource
+     */
     protected $listening;
+    /**
+     * @var
+     */
     protected $request;
+    /**
+     * @var
+     */
     protected $request_path;
 
     /**
@@ -38,6 +60,9 @@ class Server extends Base
         }
     }
 
+    /**
+     *
+     */
     public function __destruct()
     {
         if ($this->isConnected()) {
@@ -46,21 +71,34 @@ class Server extends Base
         $this->socket = null;
     }
 
+    /**
+     * @return mixed
+     */
     public function getPort()
     {
         return $this->port;
     }
 
+    /**
+     * @return mixed
+     */
     public function getPath()
     {
         return $this->request_path;
     }
 
+    /**
+     * @return mixed
+     */
     public function getRequest()
     {
         return $this->request;
     }
 
+    /**
+     * @param $header
+     * @return string|null
+     */
     public function getHeader($header)
     {
         foreach ($this->request as $row) {
@@ -72,12 +110,18 @@ class Server extends Base
         return null;
     }
 
+    /**
+     * @return bool
+     */
     public function accept()
     {
         $this->socket = null;
         return (bool)$this->listening;
     }
 
+    /**
+     * @throws ConnectionException
+     */
     protected function connect()
     {
         if (empty($this->options['timeout'])) {
@@ -96,6 +140,9 @@ class Server extends Base
         $this->performHandshake();
     }
 
+    /**
+     * @throws ConnectionException
+     */
     protected function performHandshake()
     {
         $request = '';

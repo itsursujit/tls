@@ -2,38 +2,72 @@
 
 namespace WebSocket;
 
+/**
+ * Class Base
+ * @package WebSocket
+ */
 class Base
 {
+    /**
+     * @var
+     */
     protected $socket;
+    /**
+     * @var array
+     */
     protected $options = [];
+    /**
+     * @var bool
+     */
     protected $is_closing = false;
+    /**
+     * @var null
+     */
     protected $last_opcode = null;
+    /**
+     * @var null
+     */
     protected $close_status = null;
 
+    /**
+     * @var int[]
+     */
     protected static $opcodes = array(
         'continuation' => 0,
-        'text'         => 1,
-        'binary'       => 2,
-        'close'        => 8,
-        'ping'         => 9,
-        'pong'         => 10,
+        'text' => 1,
+        'binary' => 2,
+        'close' => 8,
+        'ping' => 9,
+        'pong' => 10,
     );
 
+    /**
+     * @return null
+     */
     public function getLastOpcode()
     {
         return $this->last_opcode;
     }
 
+    /**
+     * @return null
+     */
     public function getCloseStatus()
     {
         return $this->close_status;
     }
 
+    /**
+     * @return bool
+     */
     public function isConnected()
     {
         return $this->socket && get_resource_type($this->socket) == 'stream';
     }
 
+    /**
+     * @param $timeout
+     */
     public function setTimeout($timeout)
     {
         $this->options['timeout'] = $timeout;
@@ -43,17 +77,30 @@ class Base
         }
     }
 
+    /**
+     * @param $fragment_size
+     * @return $this
+     */
     public function setFragmentSize($fragment_size)
     {
         $this->options['fragment_size'] = $fragment_size;
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
     public function getFragmentSize()
     {
         return $this->options['fragment_size'];
     }
 
+    /**
+     * @param $payload
+     * @param string $opcode
+     * @param bool $masked
+     * @throws BadOpcodeException
+     */
     public function send($payload, $opcode = 'text', $masked = true)
     {
         if (!$this->isConnected()) {
@@ -77,13 +124,19 @@ class Base
         }
     }
 
+    /**
+     * @param $final
+     * @param $payload
+     * @param $opcode
+     * @param $masked
+     */
     protected function sendFragment($final, $payload, $opcode, $masked)
     {
         // Binary string for header.
         $frame_head_binstr = '';
 
         // Write FIN, final fragment bit.
-        $frame_head_binstr .= (bool) $final ? '1' : '0';
+        $frame_head_binstr .= (bool)$final ? '1' : '0';
 
         // RSV 1, 2, & 3 false and unused.
         $frame_head_binstr .= '000';
@@ -131,6 +184,10 @@ class Base
         $this->write($frame);
     }
 
+    /**
+     * @return string
+     * @throws ConnectionException
+     */
     public function receive()
     {
         if (!$this->isConnected()) {
@@ -146,18 +203,23 @@ class Base
         return $payload;
     }
 
+    /**
+     * @return array
+     * @throws BadOpcodeException
+     * @throws ConnectionException
+     */
     protected function receiveFragment()
     {
         // Just read the main fragment information first.
         $data = $this->read(2);
 
         // Is this the final fragment?  // Bit 0 in byte 0
-        $final = (bool) (ord($data[0]) & 1 << 7);
+        $final = (bool)(ord($data[0]) & 1 << 7);
 
         // Should be unused, and must be false…  // Bits 1, 2, & 3
-        $rsv1  = (bool) (ord($data[0]) & 1 << 6);
-        $rsv2  = (bool) (ord($data[0]) & 1 << 5);
-        $rsv3  = (bool) (ord($data[0]) & 1 << 4);
+        $rsv1 = (bool)(ord($data[0]) & 1 << 6);
+        $rsv2 = (bool)(ord($data[0]) & 1 << 5);
+        $rsv3 = (bool)(ord($data[0]) & 1 << 4);
 
         // Parse opcode
         $opcode_int = ord($data[0]) & 31; // Bits 4-7
@@ -176,12 +238,12 @@ class Base
         }
 
         // Masking?
-        $mask = (bool) (ord($data[1]) >> 7);  // Bit 0 in byte 1
+        $mask = (bool)(ord($data[1]) >> 7);  // Bit 0 in byte 1
 
         $payload = '';
 
         // Payload length
-        $payload_length = (int) ord($data[1]) & 127; // Bits 1-7 in byte 1
+        $payload_length = (int)ord($data[1]) & 127; // Bits 1-7 in byte 1
         if ($payload_length > 125) {
             if ($payload_length === 126) {
                 $data = $this->read(2); // 126: Payload is a 16-bit unsigned int
@@ -246,8 +308,8 @@ class Base
     /**
      * Tell the socket to close.
      *
-     * @param integer $status  http://tools.ietf.org/html/rfc6455#section-7.4
-     * @param string  $message A closing message, max 125 bytes.
+     * @param integer $status http://tools.ietf.org/html/rfc6455#section-7.4
+     * @param string $message A closing message, max 125 bytes.
      */
     public function close($status = 1000, $message = 'ttfn')
     {
@@ -265,6 +327,10 @@ class Base
         $this->receive(); // Receiving a close frame will close the socket now.
     }
 
+    /**
+     * @param $data
+     * @throws ConnectionException
+     */
     protected function write($data)
     {
         $written = fwrite($this->socket, $data);
@@ -279,6 +345,11 @@ class Base
         }
     }
 
+    /**
+     * @param $length
+     * @return string
+     * @throws ConnectionException
+     */
     protected function read($length)
     {
         $data = '';
@@ -296,6 +367,11 @@ class Base
         return $data;
     }
 
+    /**
+     * @param $message
+     * @param int $code
+     * @throws ConnectionException
+     */
     protected function throwException($message, $code = 0)
     {
         $meta = stream_get_meta_data($this->socket);

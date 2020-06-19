@@ -8,7 +8,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "WebSocket\\": "websocket"
+            "WebSocket\\": "websocket",
+            "Tls\\": "tls"
         }
+    },
+    "require": {
+        "ext-openssl": "*",
+        "ext-sockets": "*"
     }
 }
